@@ -85,7 +85,7 @@ bool AZombieAIController::bIsInFront(AActor* ActorToCheck)
 	float DirectionDotProduct = FVector::DotProduct(AIToPlayerVector, AIForwardVector);
 	//Display Dot Priduct in Log
 	UE_LOG(LogTemp, Warning, TEXT("dot product result: %f"), DirectionDotProduct);
-	if (DirectionDotProduct > 0 )
+	if (DirectionDotProduct > -0.3 )//to give it a wider fov
 	{
 		return true;
 	}

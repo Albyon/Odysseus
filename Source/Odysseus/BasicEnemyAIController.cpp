@@ -82,7 +82,7 @@ bool ABasicEnemyAIController::bIsInFront(AActor* ActorToCheck)
 	//Dot Product Calculations
 	float DirectionDotProduct = FVector::DotProduct(AIToPlayerVector, AIForwardVector);
 	//Display Dot Priduct in Log
-	//UE_LOG(LogTemp, Warning, TEXT("dot product result: %f"), DirectionDotProduct);
+	UE_LOG(LogTemp, Warning, TEXT("dot product result: %f"), DirectionDotProduct);
 	if (DirectionDotProduct > 0)
 	{
 		return true;

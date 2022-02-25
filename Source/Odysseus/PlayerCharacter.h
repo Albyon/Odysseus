@@ -12,6 +12,7 @@
 #include "PlayerCharacter.generated.h"
 class UCameraComponent;
 class USceneCaptureComponent;
+class AOdysseusGameModeBase;
 UCLASS()
 class ODYSSEUS_API APlayerCharacter : public ACharacter
 {
@@ -45,15 +46,18 @@ public:
 	UFUNCTION(BlueprintPure, Category = "PCHealth")
 		int GetHealth(int hp);
 	//BEGIN Ammo VAR
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PC Ammo")
-		int MaxAmmo = 30;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PC Ammo")
-		int Ammo;
 	UFUNCTION(BlueprintPure)
 		int GetAmmo(int AmmoAmount);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PC Ammo")
+		int32 AmmoInMag;//Ammo in Mag
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PC Ammo")
+		int32 AmmoReserve;//Total Ammo
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PC Ammo")
 		int AmmoDecrement = 1;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PC Ammo")
+		bool bCanShoot;
+	/*Reloads the Rifle*/
+	void OnReload();
 	//The following functions will use a Timer to grant the player temporary immunity to damage upon being hit
 	UFUNCTION()
 		void DmgTimer();
@@ -76,18 +80,36 @@ public:
 	UFUNCTION()
 		void EndFire();
 	
-	//Action UI
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<class UUserWidget> HelperWidgetClass;
-	class UUWidget* HelpyWidget;
 	UPROPERTY(EditAnywhere)
 		USoundBase* FootSteps;
-	
+	//raycast
+	UPROPERTY(EditAnywhere)
+		FVector CameraLocal;
+	UPROPERTY(EditAnywhere)
+		FRotator CameraRot;
+	UPROPERTY(EditAnywhere)
+		float CastRange = 10000000.0f;//many centimetres because I don't know how long the gameplay level will be
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FHitResult Hit;//Stores result of the cast
+	UPROPERTY(EditAnywhere)
+		bool bDidHit;
+	UPROPERTY(EditAnywhere)
+		float ImpulseForce = 1000.0f;
+	UPROPERTY(EditAnywhere)
+		AOdysseusGameModeBase* GameMode;
+		
 private:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<ARifleActor> rifleClass;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
 		AController* EventInstigator, AActor* DamageCauser) override;
+	//Timer for reloading
+	UPROPERTY(EditAnywhere)
+		FTimerHandle ReloadTimer;
+	UPROPERTY(EditAnywhere)
+		USoundBase* GunShot;
+	UPROPERTY(EditAnywhere)
+	float BaseDamage = 10.0f;
 
 
 };

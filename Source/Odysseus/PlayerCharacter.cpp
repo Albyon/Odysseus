@@ -1,5 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "PlayerCharacter.h"
+#include "FixedAIZombie.h"
+#include "OdysseusGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -36,8 +38,10 @@ APlayerCharacter::APlayerCharacter()
 	//starts as false to prevent player jumping on spawn.
 	isJumping = false;
 	
-
-
+	AmmoInMag = 30;
+	AmmoReserve = 30;
+	bCanShoot = true
+		;//determines if the player can shoot. As they spawn in with ammo this is set to true
 
 }
 
@@ -64,14 +68,17 @@ void APlayerCharacter::BeginPlay()
 	}
 	/*Setting the Players Health Variables*/
 	Health = MaxHealth;
-	Ammo = MaxAmmo;
+	
 }
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if(Health <= 0)
+	{
+		GameMode->LevelSelect(2.0f);
+	}
 
 }
 
@@ -79,6 +86,27 @@ void APlayerCharacter::Tick(float DeltaTime)
 int APlayerCharacter::GetHealth(int hp)
 {
 	return hp;
+}
+void APlayerCharacter::OnReload()
+{
+	if (AmmoReserve <= 0 || AmmoInMag >= 30)
+	{
+		return;//we dont need to reload if the player is out of ammo or has a full magazine and so it returns
+	}
+	if (AmmoReserve < 30)
+	{
+		// Adds what remains in the ammo reserve pool to the loaded ammo and sets reserve to zero. This is to be used if the player has less than 30 bullets in the ammo pool but still wants to reload
+		AmmoInMag = AmmoInMag + AmmoReserve;
+		AmmoReserve = 0;
+	}
+	else
+	{
+		//reduces ammo reserve by (30 - AmmoInMag). This means that it wont always remove 30 bullets from the reserve pool but instead removes how ever many bullets are missing from the magazine
+		AmmoReserve = AmmoReserve - (30 - AmmoInMag);
+		AmmoInMag = 30;
+		
+
+	}
 }
 void APlayerCharacter::DmgTimer()
 {
@@ -100,6 +128,7 @@ void APlayerCharacter::Strafe(float AxisAmount)
 void APlayerCharacter::LookUp(float AxisAmount)
 {
 	AddControllerPitchInput(AxisAmount);
+	//UE_LOG(LogTemp, Warning, TEXT("UPCALL"));
 
 }
 
@@ -122,8 +151,54 @@ void APlayerCharacter::Turn(float AxisAmount)
 
 	void APlayerCharacter::BeginFire()
 	{
+		if (AmmoInMag <= 0)
+		{
+			bCanShoot = false;
+			return;//no ammo cant shoot  :(
+		}
+		else if (bCanShoot == true)
+		{
+			AmmoInMag = AmmoInMag - 1;//Decreasing on fire
+			AController* ControllerRef = GetController();
+			
+			//Getting the location of the camera for Raycasting.
+			ControllerRef->GetPlayerViewPoint(CameraLocal, CameraRot);
+			FVector End = CameraLocal + CameraRot.Vector() * CastRange;//End point of the raycasting.
+			bDidHit = GetWorld()->LineTraceSingleByChannel(Hit, CameraLocal, End, ECC_Visibility);
+			if (GunShot != NULL)
+			{
+					UGameplayStatics::PlaySoundAtLocation(GetWorld(), GunShot, GetActorLocation(), 1.0f, 1.0f, 0.0f); //plays a gun shot sound
+			}
+			
+			
+			if (bDidHit)
+			{
+				//tells us in the log the name of what actor the ray hit.
+				UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *Hit.GetActor()->GetName());
+				UPrimitiveComponent* RootComp = Cast<UPrimitiveComponent>(Hit.GetActor()->GetRootComponent());//Downcasting to get the primitive RootComp
+				RootComp->AddImpulse(CameraRot.Vector() * ImpulseForce * RootComp->GetMass());//CameraRot used to add impulse at same vector as used in the raycast. This line is calculating what is needed for adding Impulse physics to an object;
+				if (Hit.GetActor()->GetClass()->IsChildOf(AFixedAIZombie::StaticClass()) || Hit.GetActor()->GetClass()->IsChildOf(APlayerCharacter::StaticClass()))
+				{
+					UE_LOG(LogTemp, Warning, (TEXT("Damage occured")));
+					UGameplayStatics::ApplyDamage(
+						Hit.GetActor(), //actor that will be damaged
+						BaseDamage, //the base damage to apply
+						GetInstigatorController(), //controller that caused the damage
+						this, //Actor that actually caused the damage
+						UDamageType::StaticClass() //class that describes the damage that was done
+					);
+					
+				}
+				
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Missed"));
+			}
 
-		gun->OnBeginFire();//calling the fire function inside the gun. Easier to retroactively change the code to support multiple guns.
+			//gun->OnBeginFire();//calling the fire function inside the gun. Easier to retroactively change the code to support multiple guns. Not needed anymore due to raycasting but kept commented in as a backup
+		}
+		
 	}
 	void APlayerCharacter::EndFire()
 	{
@@ -148,5 +223,7 @@ void APlayerCharacter::Turn(float AxisAmount)
 		}
 		return DamageAmount;
 	}
+
+	
 
 

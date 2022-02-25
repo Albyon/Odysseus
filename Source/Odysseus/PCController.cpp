@@ -16,17 +16,7 @@ void APCController::BeginPlay()
 	Super::BeginPlay();
 	myPC = Cast<APlayerCharacter>(GetPawn());
 	myGun = Cast<ARifleActor>(GetPawn());
-	
-	/*HealthHUD = CreateWidget(this, GameplayHUDClass);
-	* //AmmoHUD = CreateWidget(this, GameplayHUDClass);
-	if (HealthHUD != nullptr)//some safety to prevent editor classes.
-	{
-		HealthHUD->AddToViewport();//adding to viewpirt
-		UE_LOG(LogTemp, Warning, TEXT("Health: %f"), myPC->Health);
-	}
-	*/
-	
-	
+
 }
 
 
@@ -62,6 +52,8 @@ void APCController::SetupInputComponent()
 	//firing gun
 	InputComponent->BindAction("Fire", IE_Pressed, this, &APCController::CallBeginFire);
 	InputComponent->BindAction("Fire", IE_Released, this, &APCController::CallEndFire);
+	InputComponent->BindAction("Reload", IE_Pressed, this, &APCController::CallBeginReload);
+	
 }
 
 void APCController::CallForwards(float AxisAmount)
@@ -118,6 +110,14 @@ void APCController::CallEndFire()
 	{
 
 		myPC->EndFire();
+	}
+}
+
+void APCController::CallBeginReload()
+{
+	if (myPC)
+	{
+		myPC->OnReload();
 	}
 }
 

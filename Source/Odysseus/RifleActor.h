@@ -54,14 +54,12 @@ private:
 		UStaticMeshComponent* rifle;
 	UPROPERTY(VisibleAnywhere)
 		USceneComponent* ProjectileSpawnPoint;
-	UPROPERTY(EditAnywhere)
-		USoundBase* GunShot;
+	
 	UPROPERTY(EditAnywhere)
 		USoundBase* GunClick;
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<ARifleBullet> BulletClass;
-	UPROPERTY()
-		class APlayerCharacter* MyPawn;
+	
 	UPROPERTY()
 		class AOdysseusGameModeBase* AmmoRef;
 };

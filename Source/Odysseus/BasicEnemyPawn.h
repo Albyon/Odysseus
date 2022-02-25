@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PlayerCharacter.h"
+#include "Perception/PawnSensingComponent.h"
 #include "BasicEnemyPawn.generated.h"
 
 /**
@@ -22,13 +23,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere)
-		USkeletalMeshComponent* pawnMesh;
+		USkeletalMeshComponent* PawnMesh;
 	UPROPERTY(EditAnywhere, Category = Stats)
 		float PawnMaxHealth = 50.0f;
 	UPROPERTY(EditAnywhere, Category = Stats)
 		float PointValue = 20.0f;// How points is awarded on death.
 	UPROPERTY(EditAnywhere, Category = Stats)
 		bool bIsDead;
+	
+
 
 
 };

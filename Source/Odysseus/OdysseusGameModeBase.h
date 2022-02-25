@@ -25,8 +25,7 @@ class ODYSSEUS_API AOdysseusGameModeBase : public AGameModeBase
 private:
 	/*Timer Stuff to make the game timed*/
 	FTimerHandle EndGameTimer;
-	UPROPERTY(EditAnywhere, Category = GameRules)
-		float GameDuration = 300.0f; //gives the player 5 minutes to play level
+	
 	UFUNCTION()
 		void TimeUp();
 	/*GameState Tracking*/
@@ -40,7 +39,8 @@ public:
 	AOdysseusGameModeBase();
 	UPROPERTY(EditAnywhere, Category = PlayerStatistic)
 		float PlayerHealth;
-	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = GameRules)
+		float GameDuration = 300.0f; //gives the player 5 minutes to play level
 	UPROPERTY(EditAnywhere, Category = PlayerStatistic)
 		bool GameLost;
 	UPROPERTY(EditAnywhere, Category = PlayerStatistic)

@@ -24,7 +24,7 @@ void ARifleActor::BeginPlay()
 	Super::BeginPlay();
 	//Casting a reference to the game mode to access its data(we are mostly concerned with the ammo count here)
 	AmmoRef = Cast<AOdysseusGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-
+	
 	
 	
 	
@@ -43,26 +43,23 @@ void ARifleActor::OnBeginFire()
 {
 	UE_LOG(LogTemp, Warning, TEXT("FIRED"));
 	
+
+	if (BulletClass)//if bullet class set, player ammo is NOT nearly zero and they are able to shoot then the gun will fire. This should stop the gun firing when it isn't supposed to i.e no Ammo
+	{
+
+		// spawn a bullet actor at the Projectile Spawn Point
+		FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
+		FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
+		ARifleBullet* TempBullet = GetWorld()->SpawnActor<ARifleBullet>(BulletClass, SpawnLocation, SpawnRotation);
+		TempBullet->SetOwner(this);
+
+
+	}
 	
 }
 void ARifleActor::OnEndFire()
 {
-	//calls for a specified sound to be played at the specified location
-	if (GunShot != NULL)
-	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), GunShot, GetActorLocation(), 1.0f, 1.0f, 0.0f); //plays a gun shot sound
-	}
-	
-	if (BulletClass)//if bullet class set, player ammo is NOT nearly zero and they are able to shoot then the gun will fire. This should stop the gun firing when it isn't supposed to i.e no Ammo
-	{
-		
-			// spawn a bullet actor at the Projectile Spawn Point
-			FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
-			FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
-			ARifleBullet* TempBullet = GetWorld()->SpawnActor<ARifleBullet>(BulletClass, SpawnLocation, SpawnRotation);
-			TempBullet->SetOwner(this);
-			
-	}
+	UE_LOG(LogTemp, Warning, TEXT("FIRED"));
 }
 
 

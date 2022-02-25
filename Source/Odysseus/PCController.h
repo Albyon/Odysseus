@@ -41,6 +41,8 @@ public:
 	void CallBeginFire();
 	UFUNCTION()
 		void CallEndFire();
+	UFUNCTION()
+		void CallBeginReload();
 	UFUNCTION(BlueprintPure)
 		int GetHealth();
 	UFUNCTION(BlueprintPure)

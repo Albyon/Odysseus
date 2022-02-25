@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "BasicEnemyAIController.generated.h"
+#include "ZombieAIController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ODYSSEUS_API ABasicEnemyAIController : public AAIController
+class ODYSSEUS_API AZombieAIController : public AAIController
 {
 	GENERATED_BODY()
 public:

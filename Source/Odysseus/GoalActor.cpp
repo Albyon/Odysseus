@@ -41,8 +41,18 @@ void AGoalActor::Tick(float DeltaTime)
 void AGoalActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Activated Collision"));
-	GameModeRef->ScoreIncrease(200.0f);
-	GameModeRef->LevelSelect(1.0f);
+	GameModeRef->ScoreIncrease(200.0f);//Increasing score
+	//calling the game mode level select function to change levels
+	FString CurrentLevel = GetWorld()->GetMapName();
+	CurrentLevel.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);//UE adds a prefix to the map names gotten from GetMapName so we need to remove that to get the "true" level name.
+	if (CurrentLevel == FString("Lvl_Main"))
+	{
+		GameModeRef->LevelSelect(1.0f);
+	}
+	if (CurrentLevel == FString("Lvl_Void"))
+	{
+		GameModeRef->LevelSelect(2.0f);
+	}
 }
 
 void AGoalActor::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

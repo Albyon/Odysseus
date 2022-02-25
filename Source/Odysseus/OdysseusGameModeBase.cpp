@@ -21,7 +21,7 @@ void AOdysseusGameModeBase::GameStateHandler(EGameState NewGameState)
 	case EGameState::EGameOver:
 	{
 		//go to the GameOver Level where the Gameover screen will show
-		UGameplayStatics::OpenLevel(this, FName(TEXT("Lvl_EndGame"), false));
+		UGameplayStatics::OpenLevel(this, FName(TEXT("Lvl_GameOver"), false));
 
 	}
 	break;
@@ -48,6 +48,7 @@ AOdysseusGameModeBase::AOdysseusGameModeBase()
 void AOdysseusGameModeBase::ScoreIncrease(float ToAdd)
 {
 	Score += ToAdd;//Adds to the score based upon what is inputted. Done this way so I can give different accomplishments different score values without multiple 
+	UE_LOG(LogTemp, Warning, TEXT("Score %f"), Score);
 }
 
 void AOdysseusGameModeBase::BeginPlay()
@@ -106,6 +107,11 @@ void AOdysseusGameModeBase::LevelSelect(float LevelID)
 	{
 		UGameplayStatics::OpenLevel(GetWorld(), "Lvl_Void");//Loads the Second Level, The Void a Jumping Puzzle based map
 		GameDuration = 300.0f; //Resetting timer
+	}
+	if (LevelID == 2.0f)
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "Lvl_GameOver");//Loads the game over menu
+		//do not need to reset the timer since the game is over.
 	}
 	else
 	{

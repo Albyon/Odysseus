@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PlayerCharacter.h"
+#include "FixedAIZombie.h"
 #include "RifleBullet.h"
 #include "enemyPawn.h"
 #include "Kismet/GameplayStatics.h"
@@ -48,7 +49,7 @@ void ARifleBullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalIm
 		}
 		UE_LOG(LogTemp, Warning, TEXT("Collision Begin"));
 		//Deals damage to the enemy pawn and the enemy class that is a child of the pc class
-		if (OtherActor->GetClass()->IsChildOf(AenemyPawn::StaticClass()) || OtherActor->GetClass()->IsChildOf(APlayerCharacter::StaticClass()) )
+		if (OtherActor->GetClass()->IsChildOf(AFixedAIZombie::StaticClass()) || OtherActor->GetClass()->IsChildOf(APlayerCharacter::StaticClass()) )
 		{
 			UE_LOG(LogTemp, Warning, (TEXT("Damage occured")));
 			UGameplayStatics::ApplyDamage(

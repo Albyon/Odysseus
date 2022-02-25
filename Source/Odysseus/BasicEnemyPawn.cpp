@@ -3,11 +3,14 @@
 
 #include "BasicEnemyPawn.h"
 #include "Kismet/KismetMathLibrary.h"
-//This is for the pawn that cannot shoot and deals damage via melee attacks, It will be coloured green to differentiate it from the rifleman npc from a difference. The third type of enemy 
+#include "Perception/PawnSensingComponent.h"
+//This is for the pawn that cannot shoot and deals damage via melee attacks, It will be coloured green to differentiate it from the rifleman npc from a difference. A Zombie basically.
 ABasicEnemyPawn::ABasicEnemyPawn()
 {
-	pawnMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Basic Pawn Mesh"));
-	pawnMesh->SetupAttachment(RootComponent);
+	PawnMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Basic Pawn Mesh"));
+	PawnMesh->SetupAttachment(RootComponent);
+	//sensing
+	
 
 }
 void ABasicEnemyPawn::Tick(float DeltaTime)
@@ -22,6 +25,7 @@ void ABasicEnemyPawn::Tick(float DeltaTime)
 		Destroy();
 	}
 }
+
 void ABasicEnemyPawn::BeginPlay()
 {
 	Super::BeginPlay();

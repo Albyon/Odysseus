@@ -15,6 +15,7 @@ APlayerCharacter::APlayerCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	//adding a c++ created mesh
 	pcMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("PC MESH"));
 	pcMesh->SetupAttachment(RootComponent);
 
@@ -40,8 +41,7 @@ APlayerCharacter::APlayerCharacter()
 	
 	AmmoInMag = 30;
 	AmmoReserve = 30;
-	bCanShoot = true
-		;//determines if the player can shoot. As they spawn in with ammo this is set to true
+	bCanShoot = true;//determines if the player can shoot. As they spawn in with ammo this is set to true
 
 }
 
@@ -59,15 +59,15 @@ void APlayerCharacter::BeginPlay()
 		FActorSpawnParameters actorSpawnParams;
 		actorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		actorSpawnParams.Owner = this;
-		//actually spawning the thing
+		//actually spawning the rifle actor
 		gun = GetWorld()->SpawnActor<ARifleActor>(rifleClass, SpawnLocation, SpawnRotation, actorSpawnParams);
-		//attaching gun to skeleton
+		//attaching gun to skeletons right hand so it looks mostly in place
 		gun->AttachToComponent(pcMesh, FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), TEXT("hand_r"));
 		gun->SetActorRelativeLocation(FVector(-19.0f, 0.0f, 0.0f));
 
 	}
 	/*Setting the Players Health Variables*/
-	Health = MaxHealth;
+	Health = MaxHealth; //i.e health = 100
 	
 }
 
@@ -75,11 +75,6 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if(Health <= 0)
-	{
-		GameMode->LevelSelect(2.0f);
-	}
-
 }
 
 
@@ -96,7 +91,13 @@ void APlayerCharacter::OnReload()
 	if (AmmoReserve < 30)
 	{
 		// Adds what remains in the ammo reserve pool to the loaded ammo and sets reserve to zero. This is to be used if the player has less than 30 bullets in the ammo pool but still wants to reload
+		float AmmoTemp = AmmoReserve;//Creating a temp variable in case the mag result in over 30 on reload. If that happens, set the AmmoInMag to 30 and then sett AmmoReserve to the value of the temp.
 		AmmoInMag = AmmoInMag + AmmoReserve;
+		if (AmmoInMag > 30)
+		{
+			AmmoInMag = 30;
+			AmmoReserve = AmmoTemp;
+		}
 		AmmoReserve = 0;
 	}
 	else
@@ -108,10 +109,6 @@ void APlayerCharacter::OnReload()
 
 	}
 }
-void APlayerCharacter::DmgTimer()
-{
-}
-
 //PLayer Controller Input Methods
 void APlayerCharacter::MoveForwards(float AxisAmount)
 {
@@ -214,6 +211,7 @@ void APlayerCharacter::Turn(float AxisAmount)
 
 	float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 	{
+		//take damage anf remove health by that damage.
 		UE_LOG(LogTemp, Warning, (TEXT("Damage Taken")));
 		Health -= DamageAmount;
 		if (Health <= 0)

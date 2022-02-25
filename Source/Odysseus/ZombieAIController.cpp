@@ -2,6 +2,7 @@
 
 
 #include "ZombieAIController.h"
+#include "PlayerCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/TargetPoint.h"
@@ -11,32 +12,36 @@ void AZombieAIController::BeginPlay()
 	Super::BeginPlay();
 	//Gets the location of Player 0 (as the game is single player) for the AIController and tells the AI to focus on the Player's Pawn.
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	//SetFocus(PlayerPawn); //disabled for now to test line of sight
+	//Gets all of the Target Points in the level
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetPoint::StaticClass(), Waypoints);
 	if (BasicBehaviorTree != nullptr)
 	{
+		//setting up behaviour tree and components
 		RunBehaviorTree(BasicBehaviorTree);
-		
+		//These are updated in the BT and sometimes in the code, put here to have some value at startup.
+		GetBlackboardComponent()->SetValueAsVector(TEXT("PlayerPos"), PlayerPawn->GetActorLocation());
+		GetBlackboardComponent()->SetValueAsBool(TEXT("HasLineofSight"), false);
+		GetBlackboardComponent()->SetValueAsObject(TEXT("Player"), PlayerPawn);
 		
 	}
-	GetBlackboardComponent()->SetValueAsVector(TEXT("PlayerPos"), PlayerPawn->GetActorLocation());
-	GetBlackboardComponent()->SetValueAsBool(TEXT("HasLineofSight"), false);
+	
 }
 
 void AZombieAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	//Getting Player and Pawn to calculate DP and to use in Line Of Sight
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);//In tick as well to keep position updated.
 	APawn* AIPawn = GetPawn();
 	DotProduct(AIPawn, PlayerPawn);
 	//line of sight
 	
+	
 	if (LineOfSightTo(PlayerPawn) && bIsInFront(PlayerPawn))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("I SEE YOU"));
-		GetBlackboardComponent()->SetValueAsVector(TEXT("PlayerPos"), PlayerPawn->GetActorLocation());
+
 		GetBlackboardComponent()->SetValueAsBool(TEXT("HasLineofSight"), true);
-		
 	}
 	else
 	{
@@ -47,13 +52,14 @@ void AZombieAIController::Tick(float DeltaTime)
 
 AActor* AZombieAIController::ChooseWaypoints()
 {
+	//Get a random number in the array from 0 to the number of waypoints minus one (to account for how c++ counts from 0). This is then return as an index of the Waypoints array to be used in a patrol.
 	int index = FMath::RandRange(0, Waypoints.Num() - 1);
-	//GetBlackboardComponent()->SetValueAsVector(TEXT("Waypoints"),Waypoints[index]->GetActorLocation());
 	return Waypoints[index];
 }
 
 void AZombieAIController::RandomPatrol()
 {
+	//Setting the BB Key as a random waypoint.
 	GetBlackboardComponent()->SetValueAsVector(TEXT("Waypoint"), ChooseWaypoints()->GetActorLocation());
 }
 
@@ -99,6 +105,7 @@ bool AZombieAIController::bIsInFront(AActor* ActorToCheck)
 void AZombieAIController::OnMoveCompleted(FAIRequestID RequestID, const
 	FPathFollowingResult& Result)
 {
+	//when the movement to the waypoint is complete go to another one. This makes the patrol semi-infinite.
 	Super::OnMoveCompleted(RequestID, Result);
 	RandomPatrol();
 }

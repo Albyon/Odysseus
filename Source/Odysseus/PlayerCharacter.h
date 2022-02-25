@@ -58,10 +58,6 @@ public:
 		bool bCanShoot;
 	/*Reloads the Rifle*/
 	void OnReload();
-	//The following functions will use a Timer to grant the player temporary immunity to damage upon being hit
-	UFUNCTION()
-		void DmgTimer();
-	
 	//Control Functions
 	UFUNCTION()
 		void MoveForwards(float AxisAmount);
